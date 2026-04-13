@@ -20,6 +20,7 @@ export class Room extends TypedEventEmitter<RoomEvents> {
 
   private distributor: Distributor
   private joinCheckTimeout: ReturnType<typeof setTimeout> | null = null
+  private turnCredentials: TurnCredentials | null = null
 
   constructor(
     roomId: string,
@@ -55,9 +56,9 @@ export class Room extends TypedEventEmitter<RoomEvents> {
     this.distributor.on('joined_room', (msg) => {
       if (this.joinCheckTimeout) clearTimeout(this.joinCheckTimeout)
 
-      let turnCredentials: TurnCredentials | null = null
+      this.turnCredentials = null
       if (msg.turn_user) {
-        turnCredentials = { user: msg.turn_user, password: msg.turn_password! }
+        this.turnCredentials = { user: msg.turn_user, password: msg.turn_password! }
       }
 
       new LocalPeer(msg.own_id!, this.options.ownStatus, this)
@@ -65,7 +66,7 @@ export class Room extends TypedEventEmitter<RoomEvents> {
       if (msg.peers) {
         for (const peer of msg.peers) {
           const offers = !browser.isChrome()
-          new RemotePeer(peer.peer_id, peer.status, this, offers, turnCredentials)
+          new RemotePeer(peer.peer_id, peer.status, this, offers, this.turnCredentials)
         }
       }
       this.emit('joined')
@@ -73,7 +74,7 @@ export class Room extends TypedEventEmitter<RoomEvents> {
 
     this.distributor.on('new_peer', (msg) => {
       const offers = msg.status?.user_agent === 'chrome'
-      const newPeer = new RemotePeer(msg.peer_id!, msg.status ?? {}, this, offers)
+      const newPeer = new RemotePeer(msg.peer_id!, msg.status ?? {}, this, offers, this.turnCredentials)
       this.emit('peer_joined', newPeer)
     })
 
@@ -93,6 +94,7 @@ export class Room extends TypedEventEmitter<RoomEvents> {
     }, this.options.joinTimeout)
 
     for (const key of Object.keys(status)) {
+      if (key === '__proto__' || key === 'constructor' || key === 'prototype') continue
       this.options.ownStatus[key] = status[key]
     }
     this.options.ownStatus.user_agent ??= browser.getUserAgent()

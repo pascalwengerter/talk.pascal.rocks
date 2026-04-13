@@ -1,130 +1,109 @@
 export default {
-  closeAlt: 'cross symbol',
+  closeAlt: 'close',
   moreInfoTitle: 'More info',
-  moreInfoAlt: 'info sign',
-  palavaLogoAlt: 'palava parrot',
+  moreInfoAlt: 'More info',
   switchLanguageTitle: 'Switch language',
-  switchLanguageAlt: 'language code',
+  switchTheme: 'Switch theme',
   home: {
-    blog: 'Blog',
-    github: 'GitHub',
-    goTitle: 'Create or join this meeting room',
-    goAlt: 'two people',
-    hiddenRoomIntro: 'Or start a',
-    hiddenRoom: 'hidden meeting',
-    hiddenRoomTitle: 'Create meeting room with random name',
+    subtitle: 'Peer-to-peer encrypted video calls. No sign-up, no tracking.',
+    createRoom: 'Create Room',
+    or: 'or join an existing room',
+    join: 'Join',
+    roomIdPlaceholder: 'Room name',
+    about: 'About',
+    back: 'Back',
     noSupportMessage: `
-      Sorry, but we could not detect the required WebRTC technology in your web browser.<br/>
-      <br/>
-      In order to be able to use palava.tv,
-      you will need install a web browser which supports WebRTC, such as Firefox.
-      If you are in luck, you just need to update your current browser to the latest version.
+      Your browser does not support WebRTC, which is required for video calls.<br/><br/>
+      Please use a modern browser like Firefox or Chrome.
     `,
-    palavaLogoTitle: 'What is palava.tv?',
-    roomIdPlaceholder: 'Enter name of a meeting room',
-    twitter: 'Twitter',
-  },
-  info: {
-    palavaLogoTitle: 'Go to palava.tv home page',
-    confirmLeave: 'This will exit the current palava.tv session. Continue?',
   },
   room: {
-    aboutPalava: 'Learn more about palava.tv',
     emptyTitle: 'Meeting Room',
-    errorFullHeading: 'This palava.tv meeting room is full',
-    errorFullDescription: 'You cannot enter this room, because the maximum number of participants is reached.',
-    errorFullTryAgain: 'Try again!',
-    errorMaintenanceHeading: 'Sorry, your connection will be reset',
-    errorMaintenanceDescription: 'Because of a palava.tv server maintenance, your connection is being lost. We apologize for any inconvenience this may cause.',
-    errorMaintenanceTryAgain: 'Please reload in a few moments!',
-    errorConnectionHeading: 'Unable to join this palava.tv meeting room',
-    errorConnectionDescription: 'The connection to palava.tv could not be established. This might be caused by an error with your Internet connection.',
-    errorConnectionTryAgain: 'Try again!',
-    gumChooseMedia: 'Please choose if you want to send your video and audio to others in the room, or only one of both:',
-    gumChoiceVideoAndAudio: 'Video and audio',
-    gumChoiceVideo: 'Only video',
-    gumChoiceAudio: 'Only audio',
-    gumChoiceNoMedia: 'Only text',
+    errorFullHeading: 'Room is full',
+    errorFullDescription: 'The maximum number of participants has been reached.',
+    errorMaintenanceHeading: 'Server maintenance',
+    errorMaintenanceDescription: 'The server is undergoing maintenance. Please try again shortly.',
+    errorConnectionHeading: 'Connection failed',
+    errorConnectionDescription: 'Could not connect to the server. Check your internet connection and try again.',
+    tryAgain: 'Try again',
+    goHome: 'Go home',
+    gumChooseMedia: 'How would you like to join?',
+    gumChoiceVideoAndAudio: 'Video & Audio',
+    gumChoiceVideo: 'Video only',
+    gumChoiceAudio: 'Audio only',
     gumErrorReasons: `
-      <p>
-        Possible reasons and solutions:
-      </p>
+      <p>Possible reasons:</p>
       <ul>
-        <li>You have denied access. Try again by pressing one of the above buttons.</li>
-        <li>You have previously denied palava.tv to access you microphone or camera. You will need to unblock it in your browser settings to be able to join this room. In most browsers, this can be done by clicking on a small camera symbol in the address bar</li>
-        <li>Another program on your computer is using the camera. Stop this program and try again.</li>
+        <li>You denied camera/microphone access. Click one of the buttons above to try again.</li>
+        <li>You previously blocked this site from accessing your camera. Unblock it in your browser settings (usually the camera icon in the address bar).</li>
+        <li>Another application is using the camera. Close it and try again.</li>
       </ul>
     `,
-    gumErrorHeading: 'palava.tv was unable to access the requested media stream',
-    gumHeading: 'You are about to join a palava.tv meeting room',
+    gumErrorHeading: 'Could not access camera or microphone',
+    gumHeading: 'Join this room',
     gumIntro: `
-      This will join or create a video chat meeting with anyone also connected to this page.
-      For technical reasons, your IP address and other personal data is sent to all other
-      participants via the palava.tv server. By continuing, you consent to our privacy policy,
-      <a href="/info/privacy">you can read it here</a>.
+      You'll be connected directly to everyone else in this room via peer-to-peer WebRTC.
+      Your IP address is shared with other participants to establish the connection.
     `,
-    waitingForUserMedia: 'waiting for media streams',
-    waitingForRoomServer: 'internet connection unstable,<br/>trying to reach server',
+    waitingForUserMedia: 'Requesting media access...',
+    waitingForRoomServer: 'Connecting to server...',
   },
   party: {
     toggleControls: 'Toggle controls',
     infoTitle: 'Info',
-    infoAlt: 'Info sign',
-    copyLinkTitle: 'Share/copy link',
-    copyLinkAlt: 'chain links',
+    copyLinkTitle: 'Share room link',
     turnOffCameraTitle: 'Turn off camera',
     turnOnCameraTitle: 'Turn on camera',
-    cameraAlt: 'camera',
-    muteMicrophoneTitle: 'Mute microphone',
-    unmuteMicrophoneTitle: 'Turn on microphone',
-    microphoneAlt: 'microphone',
+    muteMicrophoneTitle: 'Mute',
+    unmuteMicrophoneTitle: 'Unmute',
     screenShareTitle: 'Share screen',
-    screenShareAlt: 'computer display',
-    hangUpTitle: 'Hang up',
-    hangUpAlt: 'telephone handset facing downward',
+    chatTitle: 'Chat',
+    hangUpTitle: 'Leave',
   },
   peer: {
     toggleEnlargeTitle: 'Enlarge',
-    toggleEnlargeAlt: 'arrow pointing upwards left',
     toggleMinimizeTitle: 'Minimize',
-    toggleMinimizeAlt: 'arrow pointing downwards right',
-    fullScreenTitle: 'View on full screen',
-    fullScreenAlt: 'square of four corners',
-    networkInfoTitle: 'Show network info',
-    networkInfoAlt: 'globe with network',
+    fullScreenTitle: 'Full screen',
+    networkInfoTitle: 'Network info',
     muteAudioTitle: 'Mute',
     unmuteAudioTitle: 'Unmute',
-    mutedAudioAlt: 'speaker without noise',
-    withAudioAlt: 'speaker with noise',
-    placeholderAlt: 'area colored with {color}',
-    statusAudioAlt: 'telephone handset',
-    statusNotReadyAlt: 'pulsating dots',
-    statusNoMediaAlt: 'circle with diagonal line',
-    statusErrorAlt: 'circle with cross',
+    placeholderAlt: '{color} placeholder',
     errorConnectionClosed: 'Connection closed',
     errorConnectionFailed: 'No connection',
     errorConnectionDisconnected: 'Disconnected',
-    noMedia: 'No media streams',
-    waiting: 'Waiting',
+    noMedia: 'No media',
+    cameraOff: 'Camera off',
+    waiting: 'Connecting...',
+    presenceOnline: 'Online',
+    presenceAway: 'Away',
+    presenceOffline: 'Offline',
   },
   networkInfo: {
     directConnection: 'Direct connection',
-    relayedConnection: 'Connection via relay',
-    remoteIps: 'Remote IP addresses',
-    localIps: 'Your IP addresses',
-    ipTitle: '',
-    ipAlt: '',
+    relayedConnection: 'Relayed connection',
+    remoteIps: 'Remote IPs',
+    localIps: 'Your IPs',
     ipIsRelay: 'relay',
-    unknownConnection: 'Unknown connection status',
+    unknownConnection: 'Unknown',
+  },
+  chat: {
+    title: 'Chat',
+    placeholder: 'Type a message...',
+    send: 'Send',
+    empty: 'No messages yet',
   },
   infoPages: [
     {
       id: 'about',
-      title: 'Info',
+      title: 'About',
       content: `
-        <h2>Info</h2>
+        <h2>About</h2>
         <p>
-          Insert information about this palava.tv installation here
+          This is a peer-to-peer video chat application. Calls are established directly between
+          participants using WebRTC — no video data passes through any server.
+        </p>
+        <p>
+          Built with <a href="https://palava.tv" target="_blank">palava.tv</a> open-source technology.
         </p>
       `,
     },
@@ -133,32 +112,24 @@ export default {
       title: 'Contact',
       content: `
         <h2>Contact</h2>
-        <p>
-          Insert contact details here
-        </p>
+        <p>Contact details here.</p>
       `,
     },
     {
       id: 'network',
       linked: false,
-      title: 'Network Info',
+      title: 'Network',
       content: `
         <h2>Connection Type</h2>
-        <p>
-          There are two different ways in which you can connect to someone via palava.tv:
-        </p>
-        <br/>
+        <p>There are two connection modes:</p>
         <ul>
-          <li><strong>Direct:</strong> Your device is directly connected to the other device</li>
-          <li><strong>Relayed:</strong> Both devices send their data to a relay server. This is sometimes necessary to successfully enable the connection. The relay server has no access to the data.</li>
+          <li><strong>Direct:</strong> Your device connects directly to the other device.</li>
+          <li><strong>Relayed:</strong> Data is routed through a TURN relay server. The relay cannot read your data.</li>
         </ul>
-
-        <h2>Remote &amp; Local IPs</h2>
+        <h2>IP Addresses</h2>
         <p>
-          In order to establish a working connection, both parties send all their IP addresses to each other, including ones from your local network.
-        </p>
-        <p>
-          IP addresses can come in IPv4 format (X.X.X.X) or IPv6 format (X:X:X:X:X:X:X:X).
+          To establish a connection, both parties exchange IP addresses, including local network addresses.
+          IPs can be IPv4 (X.X.X.X) or IPv6 format.
         </p>
       `,
     },
@@ -168,9 +139,7 @@ export default {
       title: 'Not Found',
       content: `
         <h2>Not Found</h2>
-        <p>
-          The page could not be found. The content might be gone, or maybe you have mistyped the URL.
-        </p>
+        <p>This page doesn't exist.</p>
       `,
     },
   ],

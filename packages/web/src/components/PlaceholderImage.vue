@@ -1,10 +1,10 @@
 <template>
-  <div
-    class="media media--orientation-landscape placeholder-media"
+  <button
+    type="button"
+    class="media media--orientation-landscape h-full w-full cursor-pointer border-none"
     :style="{ background }"
     :aria-label="t('peer.placeholderAlt', { color: background })"
     @click="emit('click')"
-    @keypress.enter="emit('click')"
   />
 </template>
 
@@ -22,10 +22,3 @@ const { t } = useI18n()
 
 const background = computed(() => config.peerColors[props.colorIndex] ?? 'transparent')
 </script>
-
-<style lang="scss" scoped>
-.placeholder-media {
-  width: 100%;
-  height: 100%;
-}
-</style>

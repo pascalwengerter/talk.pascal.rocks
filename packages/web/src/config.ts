@@ -1,3 +1,5 @@
+import { DEFAULTS } from '@palava/client'
+
 export default {
   env: {
     rtcUrl: import.meta.env.VITE_RTC_URL,
@@ -9,15 +11,15 @@ export default {
       ? import.meta.env.VITE_FILTER_ICE_CANDIDATE_TYPES.split(',')
       : undefined,
   },
-  defaultRtcUrl: 'ws://localhost:4233',
-  defaultStunUrl: 'stun:stun.palava.tv',
-  defaultJoinTimeout: 3000,
+  defaultRtcUrl: DEFAULTS.rtcUrl,
+  defaultStunUrl: DEFAULTS.stunUrl,
+  defaultJoinTimeout: DEFAULTS.joinTimeout,
+  reconnectTimeout: DEFAULTS.reconnectTimeout,
   gumVideoConstraints: {
     facingMode: 'user' as const,
     width: 1280,
     height: 720,
   },
-  reconnectTimeout: 1000,
   maximumPeers: 6,
   defaultLocale: 'en' as const,
   supportedLocales: ['en', 'de'] as const,

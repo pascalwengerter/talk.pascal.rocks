@@ -27,12 +27,16 @@ export class Session extends TypedEventEmitter<SessionEvents> {
 
     this.createChannel()
     this.createRoom()
+    const room = this.room!
+    const userMedia = this.userMedia!
 
-    if (this.userMedia!.stream) {
-      this.room!.join()
+    if (userMedia.stream) {
+      room.join()
     } else {
-      this.userMedia!.requestStream().then(() => {
-        this.room?.join()
+      userMedia.requestStream().then(() => {
+        room.join()
+      }).catch((error) => {
+        this.emit('local_stream_error', error)
       })
     }
   }
@@ -148,8 +152,9 @@ export class Session extends TypedEventEmitter<SessionEvents> {
     this.room.on('local_stream_error', (e) => this.emit('local_stream_error', e))
     this.room.on('local_stream_removed', () => this.emit('local_stream_removed'))
     this.room.on('join_error', () => {
+      const room = this.room
       this.tearDown(true)
-      this.emit('room_join_error', this.room)
+      this.emit('room_join_error', room)
     })
     this.room.on('joined', () => this.emit('room_joined', this.room!))
     this.room.on('left', () => this.emit('room_left', this.room!))

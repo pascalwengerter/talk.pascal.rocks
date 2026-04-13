@@ -1,15 +1,16 @@
 <template>
-  <div class="info">
-    <LanguageSwitcher class="language-switcher language-switcher--desktop" />
-    <PalavaLogo class="logo logo--desktop" />
+  <div class="flex min-h-screen flex-col bg-surface">
+    <header class="flex items-center justify-between p-4">
+      <router-link to="/" class="text-sm font-medium text-text-secondary transition hover:text-text">&larr; {{ t('home.back') }}</router-link>
+      <LanguageSwitcher />
+    </header>
 
-    <main class="info-page">
-      <LanguageSwitcher class="language-switcher language-switcher--mobile" />
-      <PalavaLogo class="logo logo--mobile" />
+    <main class="mx-auto w-full max-w-3xl flex-1 px-4 pb-12">
       <NavigationBar />
 
+      <h1 class="my-6 text-3xl font-bold text-text">{{ infoPage.title }}</h1>
       <!-- eslint-disable-next-line vue/no-v-html -->
-      <div class="info-content" v-html="infoPage.content" />
+      <div class="prose prose-invert max-w-none text-text-secondary [&_a]:text-primary [&_a:hover]:text-primary-hover [&_h2]:mt-8 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:text-text [&_li]:ml-4 [&_li]:list-disc [&_strong]:text-text [&_ul]:mt-2" v-html="infoPage.content" />
     </main>
   </div>
 </template>
@@ -18,13 +19,12 @@
 import { computed, watchEffect } from 'vue'
 import { useI18n } from 'vue-i18n'
 import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
-import PalavaLogo from '@/components/PalavaLogo.vue'
 import NavigationBar from '@/components/NavigationBar.vue'
 import en from '@/i18n/en'
 import de from '@/i18n/de'
 
 const props = defineProps<{ page: string }>()
-const { locale } = useI18n()
+const { t, locale } = useI18n()
 
 const messages: Record<string, typeof en> = { en, de }
 
@@ -34,104 +34,6 @@ const infoPage = computed(() => {
 })
 
 watchEffect(() => {
-  document.title = `palava.tv | ${infoPage.value.title}`
+  document.title = `${infoPage.value.title} | Burktef`
 })
 </script>
-
-<style lang="scss">
-.info {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  height: 100%;
-  @media (min-width: $mobile-plus) { height: auto; }
-
-  .logo {
-    svg {
-      border-radius: 50%;
-      box-shadow: 0px 0px 3px $action-1;
-    }
-    a { display: inline-block; }
-  }
-
-  .logo--desktop {
-    display: none;
-    @media (min-width: $mobile-plus) { display: block; }
-    margin: $large-spacing;
-    svg { width: $logo-info-size; height: $logo-info-size; }
-  }
-
-  .logo--mobile {
-    @media (min-width: $mobile-plus) { display: none; }
-    margin: 0 auto $medium-spacing;
-    svg { width: $logo-control-size; height: $logo-control-size; }
-  }
-
-  .language-switcher {
-    position: absolute;
-    top: $small-plus-spacing;
-    right: $medium-spacing;
-  }
-
-  .language-switcher--desktop {
-    display: none;
-    @media (min-width: $mobile-plus) { display: block; }
-  }
-
-  .language-switcher--mobile {
-    @media (min-width: $mobile-plus) { display: none; }
-  }
-}
-
-.info-page {
-  width: 100%;
-  @media (min-width: $mobile-plus) {
-    @include mediumShadow();
-    margin-bottom: $medium-plus-spacing;
-  }
-  @media (min-width: $mobile-plus + $medium-spacing) { width: $mobile-plus + $medium-spacing; }
-  @media (min-width: $desktop) { width: $desktop - $medium-spacing; }
-  @media (min-width: $desktop-large) { width: $desktop-plus; }
-}
-
-.info-page, .info-screen {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  background: $white;
-  color: $black;
-  @include defaultFont();
-  padding: $medium-plus-spacing;
-
-  h1 {
-    @include headingFont();
-    color: $heading-1;
-    text-shadow: 1px 1px rgba(100, 100, 100, 0.1);
-    text-transform: capitalize;
-    margin: $medium-spacing 0 $medium-spacing;
-    a, a:hover { color: inherit }
-  }
-
-  h2 {
-    margin-top: $medium-plus-spacing;
-    color: $action-1;
-    @include subheadingFont();
-  }
-
-  .info-content {
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-    hyphens: auto;
-
-    ul { list-style: circle; padding-left: $medium-spacing; }
-    table { border: 0; margin-top: $small-spacing; }
-    th, td { border: 0; text-align: left; }
-    th { padding-right: $medium-spacing; }
-    strong { font-weight: normal; text-decoration: underline; }
-  }
-}
-
-.fade-enter-active { transition: opacity .3s ease-in; }
-.fade-leave-active { transition: opacity .5s ease-out; }
-.fade-enter-from, .fade-leave-to { opacity: 0; }
-</style>

@@ -1,122 +1,96 @@
 export default {
-  closeAlt: 'Kreuz',
+  closeAlt: 'Schliessen',
   moreInfoTitle: 'Mehr erfahren',
-  moreInfoAlt: 'Info Symbol',
-  palavaLogoAlt: 'palava Papagei',
+  moreInfoAlt: 'Mehr erfahren',
   switchLanguageTitle: 'Sprache umschalten',
-  switchLanguageAlt: 'Sprachkuerzel',
+  switchTheme: 'Farbschema wechseln',
   home: {
-    blog: 'Blog',
-    github: 'GitHub',
-    goTitle: ' Erstelle den Meetingraum oder tritt ihm bei',
-    goAlt: 'Zwei Leute',
-    hiddenRoomIntro: 'Oder starte ein',
-    hiddenRoom: 'verstecktes Meeting',
-    hiddenRoomTitle: 'Erstelle ein Meetingraum mit einem zufaelligem Namen',
+    subtitle: 'Peer-to-Peer verschluesselte Videoanrufe. Ohne Anmeldung, ohne Tracking.',
+    createRoom: 'Raum erstellen',
+    or: 'oder einem bestehenden Raum beitreten',
+    join: 'Beitreten',
+    roomIdPlaceholder: 'Raumname',
+    about: 'Info',
+    back: 'Zurueck',
     noSupportMessage: `
-      Entschuldigung, aber wir konnten die benoetigte WebRTC-Technologie im Webbrowser nicht finden.<br/>
-      <br/>
-      Um palava.tv benutzen zu koennen, musst du einen Webbrowser mit Unterstuetzung fuer WebRTC installieren, wie zum Beispiel Firefox.
-      Eventuell reicht es bereits aus, den jetzigen Browser auf die neuste Version upzudaten.
+      Dein Browser unterstuetzt kein WebRTC, das fuer Videoanrufe benoetigt wird.<br/><br/>
+      Bitte verwende einen modernen Browser wie Firefox oder Chrome.
     `,
-    palavaLogoTitle: 'Was ist palava.tv?',
-    roomIdPlaceholder: 'Gib den Namen eines Meetingraums ein',
-    twitter: 'Twitter',
-  },
-  info: {
-    palavaLogoTitle: 'Zur palava.tv-Startseite',
-    confirmLeave: 'Dies wird die derzeitige palava.tv-Sitzung beenden. Fortfahren?',
   },
   room: {
-    aboutPalava: 'Mehr ueber palava.tv erfahren',
     emptyTitle: 'Meetingraum',
-    errorFullHeading: 'Dieser palava.tv Meetingraum ist voll',
-    errorFullDescription: 'Du kannst diesen Meetingraum nicht betreten, weil die maximale Anzahl an Nutzern darin ereicht ist.',
-    errorFullTryAgain: 'Versuche es nochmal!',
-    errorMaintenanceHeading: 'Entschuldigung, deine Verbindung wird zurueckgesetzt',
-    errorMaintenanceDescription: 'Wegen Wartungsarbeiten des palava.tv-Servers, verlierst du deine Verbindung. Wir entschuldingen uns fuer etwaige daraus entstandene Unannehmlichkeiten.',
-    errorMaintenanceTryAgain: 'Bitte lade in einigen Augenblicken neu!',
-    errorConnectionHeading: 'Nicht moeglich diesen palava.tv Meetingraum zu betreten',
-    errorConnectionDescription: 'Die Verbindung zu palava.tv konnte nicht hergestellt werden. Der Grund dafuer koennte ein Fehler mit der Internetverbindung sein.',
-    errorConnectionTryAgain: 'Versuche es nochmal!',
-    gumChooseMedia: 'Bitte waehle, ob du dein Video und Audio an die Anderen im Meetingraum senden moechtest, oder nur eins von beiden:',
-    gumChoiceVideoAndAudio: 'Video und Audio',
+    errorFullHeading: 'Raum ist voll',
+    errorFullDescription: 'Die maximale Teilnehmerzahl ist erreicht.',
+    errorMaintenanceHeading: 'Serverwartung',
+    errorMaintenanceDescription: 'Der Server wird gewartet. Bitte versuche es gleich noch einmal.',
+    errorConnectionHeading: 'Verbindung fehlgeschlagen',
+    errorConnectionDescription: 'Verbindung zum Server konnte nicht hergestellt werden. Pruefe deine Internetverbindung.',
+    tryAgain: 'Erneut versuchen',
+    goHome: 'Startseite',
+    gumChooseMedia: 'Wie moechtest du beitreten?',
+    gumChoiceVideoAndAudio: 'Video & Audio',
     gumChoiceVideo: 'Nur Video',
     gumChoiceAudio: 'Nur Audio',
-    gumChoiceNoMedia: 'Nur Text',
     gumErrorReasons: `
-      <p>
-        Moegliche Gruende und Loesungen:
-      </p>
+      <p>Moegliche Gruende:</p>
       <ul>
-        <li>Du hast den Zugriff abgelehnt. Probier es nocheinmal, indem du auf einen der obigen Knoepfe drueckst.</li>
-        <li>Du hast bei einem vorigem Besuch den Zugriff von palava.tv auf dein Mikrofon oder deine Kamera nicht gestattet.
-        Du musst das Zugriffsverbot in deinen Browsereinstellungen aufheben, um dem Meetingraum beitreten zu koennen.
-        In den meisten Browsern ist das moeglich, indem man auf ein kleines Kamerasymbol in der Adresszeile klickt.</li>
-        <li>Ein anderes Programm auf deinem Computer benutzt die Kamera. Beende das Programm und probiere es noch einmal.</li>
+        <li>Du hast den Zugriff verweigert. Druecke einen der obigen Knoepfe, um es erneut zu versuchen.</li>
+        <li>Du hast den Kamera-Zugriff frueher blockiert. Hebe die Blockierung in den Browsereinstellungen auf.</li>
+        <li>Ein anderes Programm verwendet die Kamera. Schliesse es und versuche es erneut.</li>
       </ul>
     `,
-    gumErrorHeading: 'palava.tv konnte nicht auf den gewuenschten Medienstrom zugreifen',
-    gumHeading: 'Du bist dabei, einen palava.tv Meetingraum zu betreten',
+    gumErrorHeading: 'Zugriff auf Kamera oder Mikrofon nicht moeglich',
+    gumHeading: 'Diesem Raum beitreten',
     gumIntro: `
-      Dies wird einem Videochat mit allen, die auch mit dieser Seite verbunden sind, beitreten oder einen neuen eroeffnen.
-      Aus technischen Gruenden werden deine IP-Adresse und andere persoenliche Daten ueber den palava.tv-Server an alle
-      anderen Teilnehmer_innen gesendet. Durch das Fortfahren, stimmst du unserer Datenschutzerklaerung zu,
-      <a href="/info/privacy">du kannst sie hier lesen</a>.
+      Du wirst per Peer-to-Peer WebRTC direkt mit allen anderen im Raum verbunden.
+      Deine IP-Adresse wird mit anderen Teilnehmern geteilt, um die Verbindung herzustellen.
     `,
-    waitingForUserMedia: 'Warte auf Medienstroeme',
-    waitingForRoomServer: 'Internetverbindung instabil,<br/>versuche Server zu erreichen',
+    waitingForUserMedia: 'Medienzugriff wird angefragt...',
+    waitingForRoomServer: 'Verbindung zum Server wird hergestellt...',
   },
   party: {
     toggleControls: 'Bedienelemente umschalten',
     infoTitle: 'Info',
-    infoAlt: 'Info Symbol',
-    copyLinkTitle: 'Link teilen/kopieren',
-    copyLinkAlt: 'Klemmbrett',
+    copyLinkTitle: 'Raumlink teilen',
     turnOffCameraTitle: 'Kamera abschalten',
     turnOnCameraTitle: 'Kamera anschalten',
-    cameraAlt: 'Kamera',
-    muteMicrophoneTitle: 'Mikrofon stummschalten',
-    unmuteMicrophoneTitle: 'Mikrofon anschalten ',
-    microphoneAlt: 'Mikrofon',
+    muteMicrophoneTitle: 'Stummschalten',
+    unmuteMicrophoneTitle: 'Mikrofon anschalten',
     screenShareTitle: 'Bildschirm teilen',
-    screenShareAlt: 'Desktop-Computer',
-    hangUpTitle: 'Auflegen',
-    hangUpAlt: 'Telefonhoerer nach unten zeigend',
+    chatTitle: 'Chat',
+    hangUpTitle: 'Verlassen',
   },
   peer: {
     toggleEnlargeTitle: 'Vergroessern',
-    toggleEnlargeAlt: 'Pfeil mit Spitze nach oben links',
     toggleMinimizeTitle: 'Verkleinern',
-    toggleMinimizeAlt: 'Pfeil mit Spitze nach unten rechts',
-    fullScreenTitle: 'Auf vollem Bildschirm anzeigen',
-    fullScreenAlt: 'Viereck aus vier Ecken',
-    networkInfoTitle: 'Netzwerkinformationen anzeigen',
-    networkInfoAlt: 'Erdkugel mit Netzwerk',
+    fullScreenTitle: 'Vollbild',
+    networkInfoTitle: 'Netzwerkinfo',
     muteAudioTitle: 'Stummschalten',
     unmuteAudioTitle: 'Lautschalten',
-    mutedAudioAlt: 'Lautsprecher ohne Geraeusch',
-    withAudioAlt: 'Lautsprecher mit Geraeusch',
-    placeholderAlt: 'Flaeche ausgefuellt mit der Farbe {color}',
-    statusAudioAlt: 'Telefonhoerer',
-    statusNotReadyAlt: 'Pulsierende Punkte',
-    statusNoMediaAlt: 'Kreis mit diagonalem Balken',
-    statusErrorAlt: 'Kreis mit Kreuz',
+    placeholderAlt: '{color} Platzhalter',
     errorConnectionClosed: 'Verbindung geschlossen',
     errorConnectionFailed: 'Keine Verbindung',
-    errorConnectionDisconnected: 'Verbindung getrennt',
-    noMedia: 'Keine Medienstroeme',
-    waiting: 'Warte',
+    errorConnectionDisconnected: 'Getrennt',
+    noMedia: 'Keine Medien',
+    cameraOff: 'Kamera aus',
+    waiting: 'Verbinde...',
+    presenceOnline: 'Online',
+    presenceAway: 'Abwesend',
+    presenceOffline: 'Offline',
   },
   networkInfo: {
     directConnection: 'Direktverbindung',
-    relayedConnection: 'Verbindung ueber Zwischenstation',
-    remoteIps: 'Ferne IP-Adressen',
-    localIps: 'Deine IP-Adressen',
-    ipTitle: '',
-    ipAlt: '',
-    ipIsRelay: 'Zwischenstation',
-    unknownConnection: 'Unbekannter Verbindungsstatus',
+    relayedConnection: 'Verbindung ueber Relay',
+    remoteIps: 'Ferne IPs',
+    localIps: 'Deine IPs',
+    ipIsRelay: 'Relay',
+    unknownConnection: 'Unbekannt',
+  },
+  chat: {
+    title: 'Chat',
+    placeholder: 'Nachricht eingeben...',
+    send: 'Senden',
+    empty: 'Noch keine Nachrichten',
   },
   infoPages: [
     {
@@ -125,7 +99,11 @@ export default {
       content: `
         <h2>Info</h2>
         <p>
-          Hier Informationen ueber die palava.tv-Installation einfuegen
+          Dies ist eine Peer-to-Peer Videochat-Anwendung. Anrufe werden direkt zwischen
+          Teilnehmern ueber WebRTC hergestellt — keine Videodaten laufen ueber einen Server.
+        </p>
+        <p>
+          Basiert auf <a href="https://palava.tv" target="_blank">palava.tv</a> Open-Source-Technologie.
         </p>
       `,
     },
@@ -134,32 +112,24 @@ export default {
       title: 'Kontakt',
       content: `
         <h2>Kontakt</h2>
-        <p>
-          Hier die Kontaktmoeglichkeiten eintragen
-        </p>
+        <p>Kontaktinformationen hier eintragen.</p>
       `,
     },
     {
       id: 'network',
       linked: false,
-      title: 'Netzwerkinformationen',
+      title: 'Netzwerk',
       content: `
         <h2>Verbindungstyp</h2>
-        <p>
-          Es gibt zwei verschiedene Arten, wie du dich mit jemandem auf palava.tv verbinden kannst:
-        </p>
-        <br/>
+        <p>Es gibt zwei Verbindungsmodi:</p>
         <ul>
-          <li><strong>Direkt:</strong> Dein Geraet ist direkt mit dem anderen Geraet verbunden</li>
-          <li><strong>Mit Zwischenstation:</strong> Beide Geraete senden ihre Daten an eine Zwischenstation. Das ist manchmal notwendig, um eine erfolgreiche Verbindung herstellen zu koennen. Der Zwischenuebertragungsserver hat keine Zugriff auf die Daten.</li>
+          <li><strong>Direkt:</strong> Dein Geraet verbindet sich direkt mit dem anderen Geraet.</li>
+          <li><strong>Relay:</strong> Daten werden ueber einen TURN-Relay-Server geleitet. Der Relay kann deine Daten nicht lesen.</li>
         </ul>
-
-        <h2>Ferne &amp; Eigene IPs</h2>
+        <h2>IP-Adressen</h2>
         <p>
-          Um eine funktionierende Verbindung herzustellen, muessen beide Parteien sich gegenseitig alle ihre IP-Adressen senden, inklusive welche, aus dem eigenen (lokalen) Netzwerk.
-        </p>
-        <p>
-          IP-Adressen koennen im IPv4-Format (X.X.X.X), oder im IPv6-Format vorkommen (X:X:X:X:X:X:X:X).
+          Um eine Verbindung herzustellen, tauschen beide Seiten IP-Adressen aus, einschliesslich lokaler Netzwerkadressen.
+          IPs koennen im IPv4- (X.X.X.X) oder IPv6-Format vorliegen.
         </p>
       `,
     },
@@ -169,9 +139,7 @@ export default {
       title: 'Nicht gefunden',
       content: `
         <h2>Nicht gefunden</h2>
-        <p>
-          Die Seite konnte nicht gefunden werden. Der Inhalt koennte verschwunden sein, oder vielleicht hast du die URL falsch eingegeben.
-        </p>
+        <p>Diese Seite existiert nicht.</p>
       `,
     },
   ],

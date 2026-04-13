@@ -8,6 +8,7 @@ import type { SignalingMessage } from './types.js'
 export class Distributor {
   private channel: WebSocketChannel
   private peerId: string | null
+  private channelListeners: Array<(msg: SignalingMessage) => void> = []
 
   constructor(channel: WebSocketChannel, peerId: string | null = null) {
     this.channel = channel
@@ -19,7 +20,7 @@ export class Distributor {
    * or global messages (for room distributors).
    */
   on(event: string, handler: (msg: SignalingMessage) => void): void {
-    this.channel.on('message', (msg) => {
+    const listener = (msg: SignalingMessage) => {
       if (this.peerId) {
         if (msg.sender_id === this.peerId && event === msg.event) {
           handler(msg)
@@ -29,7 +30,17 @@ export class Distributor {
           handler(msg)
         }
       }
-    })
+    }
+    this.channelListeners.push(listener)
+    this.channel.on('message', listener)
+  }
+
+  /** Removes all listeners this distributor attached to the channel */
+  removeAllListeners(): void {
+    for (const listener of this.channelListeners) {
+      this.channel.off('message', listener)
+    }
+    this.channelListeners = []
   }
 
   /** Sends a message through the Distributor */

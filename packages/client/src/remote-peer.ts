@@ -293,6 +293,7 @@ export class RemotePeer extends Peer<RemotePeerEvents> {
         this.ready = false
       }
       this.peerConnection?.close()
+      this.distributor.removeAllListeners()
       this.emit('left')
     })
 
@@ -304,7 +305,9 @@ export class RemotePeer extends Peer<RemotePeerEvents> {
         sdpMid: msg.sdpmid,
       })
       if (!this.room.options.filterIceCandidateTypes?.includes(candidate.type ?? '')) {
-        this.peerConnection?.addIceCandidate(candidate)
+        this.peerConnection?.addIceCandidate(candidate).catch((error) => {
+          this.emit('oaerror', error)
+        })
       }
     })
 
@@ -322,7 +325,8 @@ export class RemotePeer extends Peer<RemotePeerEvents> {
 
     this.distributor.on('peer_updated_status', (msg) => {
       if (msg.status) {
-        this.status = msg.status
+        const { __proto__: _, constructor: _c, prototype: _p, ...safeStatus } = msg.status as Record<string, unknown>
+        this.status = safeStatus
       }
       this.emit('update')
     })
@@ -404,7 +408,17 @@ export class RemotePeer extends Peer<RemotePeerEvents> {
 
   /** End peer connection */
   closePeerConnection(): void {
+    if (this.remoteStream) {
+      this.remoteStream.onaddtrack = null
+      this.remoteStream.onremovetrack = null
+      this.remoteStream = null
+    }
+    for (const channel of Object.values(this.dataChannels)) {
+      channel.close()
+    }
+    this.dataChannels = {}
     this.peerConnection?.close()
     this.peerConnection = null
+    this.distributor.removeAllListeners()
   }
 }

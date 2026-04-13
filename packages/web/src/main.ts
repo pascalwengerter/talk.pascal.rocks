@@ -1,3 +1,5 @@
+import './css/app.css'
+import './composables/useTheme'
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'

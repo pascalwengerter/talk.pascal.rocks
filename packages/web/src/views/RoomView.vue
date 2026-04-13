@@ -1,5 +1,5 @@
 <template>
-  <div class="room">
+  <div class="h-full">
     <transition name="fade">
       <ScreenMessage :message="screenMessage" v-if="screenMessage" />
     </transition>
@@ -18,8 +18,10 @@
       v-bind="uiStateProps"
       :peers="peers"
       :localPeer="localPeer"
+      :chatMessages="chatMessages"
       @join-room="joinRoom"
       @open-info-screen="(page: string) => infoPage = page"
+      @send-chat="onSendChat"
     />
   </div>
 </template>
@@ -28,7 +30,8 @@
 import { ref, computed, onBeforeUnmount, watchEffect, type Component, markRaw } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { Session, type Peer, type LocalPeer as LocalPeerType } from '@palava/client'
+import { Session, type Peer, type LocalPeer as LocalPeerType, type RemotePeer } from '@palava/client'
+import { usePresence } from '@/composables/usePresence'
 import config from '@/config'
 import logger from '@/utils/logger'
 import { fancyNumber } from '@/utils/support'
@@ -45,14 +48,18 @@ import leavingBirdsUrl from '@/assets/sounds/leaving-room-bird.mp3'
 const route = useRoute()
 const router = useRouter()
 const { t } = useI18n()
+const { presenceState } = usePresence()
 
 const uiStateComponent = ref<Component>(markRaw(UserMediaConfigurator))
 const uiStateProps = ref<Record<string, unknown>>({})
 const screenMessage = ref<string | null>(null)
 const peers = ref<Peer[]>([])
 const localPeer = ref<LocalPeerType | null>(null)
+const chatMessages = ref<Array<{ senderId: string, text: string, timestamp: number }>>([])
 const infoPage = ref<string | null>(null)
 let signalingState: 'initial' | 'connected' | 'reconnect_scheduled' | 'trying_to_reconnect' = 'initial'
+let connectionAttempts = 0
+const MAX_CONNECTION_ATTEMPTS = 3
 
 const joinSound = new Audio(enteringKnockUrl)
 const leavingSound = new Audio(leavingBirdsUrl)
@@ -69,7 +76,13 @@ watchEffect(() => {
   const peerCount = peers.value.length
   const emoji = fancyNumber(peerCount) || t('room.emptyTitle')
   const decoded = decodeURIComponent(roomId.value ?? '')
-  document.title = `palava.tv | ${emoji} | ${decoded}`
+  document.title = `${emoji} ${decoded} | Burktef`
+})
+
+watchEffect(() => {
+  if (localPeer.value) {
+    localPeer.value.updateStatus({ presence: presenceState.value })
+  }
 })
 
 function updateUiState(component: Component, props: Record<string, unknown> = {}) {
@@ -86,6 +99,7 @@ const sessionConfig = {
   joinTimeout: config.defaultJoinTimeout,
   filterIceCandidateTypes: config.env.filterIceCandidateTypes,
   turnUrls: config.env.turnUrls,
+  dataChannels: { chat: { ordered: true } },
 }
 
 const rtc = new Session(sessionConfig)
@@ -125,7 +139,7 @@ rtc.on('local_stream_ready', (stream) => {
 
 rtc.on('room_join_error', () => {
   logger.error('room join error (timeout)')
-  updateUiState(RoomError, { error: 'connection_error' })
+  retryOrFail()
 })
 
 rtc.on('room_full', () => {
@@ -136,6 +150,7 @@ rtc.on('room_full', () => {
 rtc.on('room_joined', (room) => {
   logger.log(`room joined with ${room.getRemotePeers().length} other peers`)
   signalingState = 'connected'
+  connectionAttempts = 0
 
   const allPeers = room.getAllPeers()
   if (allPeers.length > config.maximumPeers) {
@@ -151,22 +166,24 @@ rtc.on('room_joined', (room) => {
 
 rtc.on('peer_joined', (peer) => {
   logger.log('peer joined', peer)
-  joinSound.play()
-  if (rtc.room) peers.value = rtc.room.getAllPeers()
+  joinSound.play().catch(() => {})
+  if (rtc.room) peers.value = [...rtc.room.getAllPeers()]
 })
 
 rtc.on('peer_stream_ready', (peer) => {
   logger.log('peer stream ready', peer)
+  if (rtc.room) peers.value = [...rtc.room.getAllPeers()]
 })
 
 rtc.on('peer_stream_removed', (peer) => {
   logger.log('peer stream removed', peer)
+  if (rtc.room) peers.value = [...rtc.room.getAllPeers()]
 })
 
 rtc.on('peer_left', (peer) => {
   logger.log('peer left', peer)
-  leavingSound.play()
-  if (rtc.room) peers.value = rtc.room.getAllPeers()
+  leavingSound.play().catch(() => {})
+  if (rtc.room) peers.value = [...rtc.room.getAllPeers()]
 })
 
 rtc.on('session_reconnect', () => {
@@ -197,9 +214,59 @@ rtc.on('peer_connection_failed', (peer) => {
   logger.error('peer connection failed', peer)
 })
 
+rtc.on('peer_channel_ready', (peer, name, channel) => {
+  if (name === 'chat') {
+    channel.on('message', (data) => {
+      try {
+        const msg = JSON.parse(data as string)
+        chatMessages.value = [...chatMessages.value, {
+          senderId: peer.id,
+          text: msg.text,
+          timestamp: msg.timestamp,
+        }]
+      } catch (e) {
+        console.warn('malformed chat message:', e)
+      }
+    })
+  }
+})
+
+function onSendChat(text: string) {
+  if (!rtc.room || !localPeer.value) return
+  const msg = { text, timestamp: Date.now() }
+  const serialized = JSON.stringify(msg)
+
+  for (const peer of rtc.room.getRemotePeers()) {
+    const remotePeer = peer as RemotePeer
+    const channel = remotePeer.dataChannels['chat']
+    if (channel) {
+      channel.send(serialized)
+    }
+  }
+
+  chatMessages.value = [...chatMessages.value, {
+    senderId: localPeer.value.id,
+    text,
+    timestamp: msg.timestamp,
+  }]
+}
+
 function joinRoom(userMediaConfig: MediaStreamConstraints) {
   screenMessage.value = t('room.waitingForUserMedia')
   rtc.connect({ userMediaConfig })
+}
+
+function retryOrFail() {
+  connectionAttempts++
+  logger.log(`connection attempt ${connectionAttempts}/${MAX_CONNECTION_ATTEMPTS}`)
+
+  if (connectionAttempts < MAX_CONNECTION_ATTEMPTS) {
+    screenMessage.value = t('room.waitingForRoomServer')
+    const delay = config.reconnectTimeout * connectionAttempts
+    setTimeout(() => rtc.reconnect(), delay)
+  } else {
+    updateUiState(RoomError, { error: 'connection_error' })
+  }
 }
 
 function onlineEventListener() {
@@ -208,6 +275,7 @@ function onlineEventListener() {
 
   if (signalingState === 'reconnect_scheduled') {
     signalingState = 'trying_to_reconnect'
+    connectionAttempts = 0
     rtc.reconnect()
   } else if (signalingState === 'trying_to_reconnect') {
     setTimeout(() => rtc.reconnect(), config.reconnectTimeout)
@@ -222,7 +290,7 @@ function reconnectRtcWhenOnLine() {
     window.addEventListener('online', onlineEventListener)
     if (navigator.onLine) window.dispatchEvent(new Event('online'))
   } else {
-    updateUiState(RoomError, { error: 'connection_error' })
+    retryOrFail()
   }
 }
 
@@ -231,9 +299,3 @@ onBeforeUnmount(() => {
   window.removeEventListener('online', onlineEventListener)
 })
 </script>
-
-<style lang="scss">
-.room {
-  height: 100%;
-}
-</style>

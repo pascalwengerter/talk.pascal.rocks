@@ -1,10 +1,10 @@
 <template>
   <button
     :title="t('switchLanguageTitle')"
-    class="language-switcher"
+    class="cursor-pointer rounded-md bg-text/5 px-2.5 py-1 text-xs font-medium uppercase tracking-wider text-text-secondary transition hover:bg-text/10 hover:text-text focus:outline-none"
     @click="switchLanguage"
   >
-    <span :aria-label="t('switchLanguageAlt')">{{ locale }}</span>
+    {{ locale }}
   </button>
 </template>
 
@@ -17,18 +17,3 @@ function switchLanguage() {
   locale.value = locale.value === 'de' ? 'en' : 'de'
 }
 </script>
-
-<style lang="scss">
-.language-switcher {
-  text-transform: uppercase;
-  padding: 0;
-  border: none;
-  background: none;
-  cursor: pointer;
-  @include footerFont();
-  color: $shade;
-  &:hover {
-    color: $action-2;
-  }
-}
-</style>

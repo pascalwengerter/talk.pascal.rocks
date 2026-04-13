@@ -26,7 +26,8 @@ export function getUserAgentVersion(): number | null {
  */
 export function checkForWebrtcError(): unknown | false {
   try {
-    new RTCPeerConnection({ iceServers: [] })
+    const pc = new RTCPeerConnection({ iceServers: [] })
+    pc.close()
   } catch (e) {
     return e
   }
@@ -51,18 +52,5 @@ export function getOfferOptions(): RTCOfferOptions {
   return {
     offerToReceiveAudio: true,
     offerToReceiveVideo: true,
-  }
-}
-
-/** Attach a media stream to a DOM element */
-export function attachMediaStream(
-  element: HTMLMediaElement,
-  stream: MediaStream | null,
-): void {
-  if (stream) {
-    element.srcObject = stream
-  } else {
-    element.pause()
-    element.srcObject = null
   }
 }

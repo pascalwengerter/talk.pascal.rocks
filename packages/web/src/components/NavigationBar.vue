@@ -1,15 +1,15 @@
 <template>
-  <nav class="navigation">
-    <ul>
-      <li v-for="infoPage in infoPages" :key="infoPage.id">
-        <router-link :to="`/info/${infoPage.id}`">
-          <span
-            @click="checkScreen(infoPage.id, $event)"
-            @keypress.enter="checkScreen(infoPage.id, $event)"
-          >{{ infoPage.title }}</span>
-        </router-link>
-      </li>
-    </ul>
+  <nav class="flex gap-4 border-b border-text/10 pb-4">
+    <template v-for="infoPage in infoPages" :key="infoPage.id">
+      <router-link
+        :to="`/info/${infoPage.id}`"
+        class="text-sm text-text-secondary transition hover:text-text"
+        active-class="text-primary!"
+        @click="(e) => checkScreen(infoPage.id, e)"
+      >
+        {{ infoPage.title }}
+      </router-link>
+    </template>
   </nav>
 </template>
 
@@ -43,39 +43,3 @@ function checkScreen(infoPage: string, event: Event) {
   }
 }
 </script>
-
-<style lang="scss">
-.navigation {
-  border-bottom: 1px solid $background;
-  margin-top: -$tiny-plus-spacing;
-  padding-top: $medium-spacing - 1px;
-  border-top: 1px solid $background;
-
-  @media (min-width: $mobile-plus) {
-    padding-top: 0;
-    border-top: none;
-  }
-
-  ul {
-    display: grid;
-    grid-auto-flow: column;
-    grid-template-rows: 1fr 1fr;
-    @media (min-width: $mobile-plus) {
-      grid-template-rows: 1fr;
-    }
-  }
-
-  li {
-    padding-bottom: $medium-spacing - 1px;
-    padding-right: $medium-spacing;
-  }
-  a, a span {
-    display: block;
-    height: 100%;
-  }
-
-  .router-link-active {
-    color: $action-2;
-  }
-}
-</style>

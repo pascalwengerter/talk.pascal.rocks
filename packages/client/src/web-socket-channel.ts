@@ -2,6 +2,8 @@ import { TypedEventEmitter } from './typed-event-emitter.js'
 import type { WebSocketChannelEvents, SignalingMessage } from './types.js'
 
 export class WebSocketChannel extends TypedEventEmitter<WebSocketChannelEvents> {
+  private static readonly MAX_QUEUED_MESSAGES = 100
+
   private address: string
   private retries: number
   private socket!: WebSocket
@@ -14,7 +16,6 @@ export class WebSocketChannel extends TypedEventEmitter<WebSocketChannelEvents> 
     this.address = address
     this.retries = retries
     this.setupWebsocket()
-    this.startClientPings()
   }
 
   /** Returns true if socket is in a good state */
@@ -35,11 +36,12 @@ export class WebSocketChannel extends TypedEventEmitter<WebSocketChannelEvents> 
     this.socket.onopen = (handshake) => {
       this.retries = 0
       this.sendDeliverOnConnectMessages()
+      this.startClientPings()
       this.emit('open', handshake)
     }
 
     this.socket.onmessage = (msg) => {
-      let parsedMsg: SignalingMessage
+      let parsedMsg: unknown
       try {
         parsedMsg = JSON.parse(msg.data as string)
       } catch (error) {
@@ -47,10 +49,21 @@ export class WebSocketChannel extends TypedEventEmitter<WebSocketChannelEvents> 
         return
       }
 
-      if (parsedMsg.event === 'pong') {
+      if (
+        typeof parsedMsg !== 'object' ||
+        parsedMsg === null ||
+        typeof (parsedMsg as SignalingMessage).event !== 'string'
+      ) {
+        this.emit('error', 'invalid_format')
+        return
+      }
+
+      const signalMsg = parsedMsg as SignalingMessage
+
+      if (signalMsg.event === 'pong') {
         this.outstandingPongs = 0
       } else {
-        this.emit('message', parsedMsg)
+        this.emit('message', signalMsg)
       }
     }
 
@@ -59,7 +72,6 @@ export class WebSocketChannel extends TypedEventEmitter<WebSocketChannelEvents> 
       if (this.retries > 0) {
         this.retries -= 1
         this.setupWebsocket()
-        this.startClientPings()
       } else {
         this.emit('error', 'socket')
       }
@@ -97,6 +109,10 @@ export class WebSocketChannel extends TypedEventEmitter<WebSocketChannelEvents> 
       this.emit('not_reachable')
     } else {
       // connection still to be established
+      if (this.messagesToDeliverOnConnect.length >= WebSocketChannel.MAX_QUEUED_MESSAGES) {
+        this.emit('error', 'queue_full')
+        return
+      }
       this.messagesToDeliverOnConnect.push(JSON.stringify(data))
     }
   }

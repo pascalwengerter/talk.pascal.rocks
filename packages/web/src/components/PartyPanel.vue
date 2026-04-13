@@ -1,117 +1,53 @@
 <template>
-  <main :class="{
-    'party': true,
-    'party--landscape': partyMode === 'landscape',
-    'party--portrait': partyMode === 'portrait',
-  }">
-    <nav class="top-control">
+  <main :class="['fixed inset-0 flex overflow-auto bg-black', partyMode === 'landscape' ? 'flex-row' : 'flex-col']">
+    <nav class="absolute top-3 left-3 z-50 flex items-center gap-2">
       <button
         :title="t('party.toggleControls')"
-        :class="{
-          'logo-control': true,
-          'logo-control--active': controlsActive,
-          'logo-control--inactive': !controlsActive,
-        }"
+        class="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-white shadow-lg backdrop-blur-sm transition hover:bg-white/30 focus:outline-none sm:h-10 sm:w-10"
         ref="logoBtn"
-        @click="toggleControls"
+        @click="controlsActive = !controlsActive"
       >
-        <PalavaIcon :alt="t('palavaLogoAlt')" />
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
       </button>
 
-      <transition name="fade-control">
-        <button
-          v-if="controlsActive"
-          :title="t('party.infoTitle')"
-          class="control control--info"
-          @click="emit('open-info-screen', 'about')"
-        >
-          <InfoIcon :alt="t('party.infoAlt')" :aria-label="t('party.infoAlt')" />
-        </button>
-      </transition>
-
-      <transition name="fade-control">
-        <button
-          v-if="controlsActive && canShare"
-          :title="t('party.copyLinkTitle')"
-          class="control control--copy-link"
-          ref="copyLinkBtn"
-          @click="copyShareLink"
-        >
-          <LinkIcon :alt="t('party.copyLinkAlt')" :aria-label="t('party.copyLinkAlt')" />
-        </button>
-      </transition>
-
-      <transition name="fade-control">
-        <button
-          v-if="controlsActive && localPeer.hasVideo()"
-          :title="cameraOff ? t('party.turnOnCameraTitle') : t('party.turnOffCameraTitle')"
-          class="control control--camera"
-          @click="toggleCamera"
-        >
-          <VideoCameraOffIcon v-if="cameraOff" :alt="t('party.cameraAlt')" :aria-label="t('party.cameraAlt')" />
-          <VideoCameraIcon v-else :alt="t('party.cameraAlt')" :aria-label="t('party.cameraAlt')" />
-        </button>
-      </transition>
-
-      <transition name="fade-control">
-        <button
-          v-if="controlsActive && localPeer.hasAudio()"
-          :title="microphoneMuted ? t('party.unmuteMicrophoneTitle') : t('party.muteMicrophoneTitle')"
-          class="control control--microphone"
-          @click="toggleMicrophone"
-        >
-          <MicOffIcon v-if="microphoneMuted" :alt="t('party.microphoneAlt')" :aria-label="t('party.microphoneAlt')" />
-          <MicIcon v-else :alt="t('party.microphoneAlt')" :aria-label="t('party.microphoneAlt')" />
-        </button>
-      </transition>
-
-      <transition name="fade-control">
-        <button
-          v-if="controlsActive"
-          :title="t('switchLanguageTitle')"
-          class="control control--switch-language"
-          ref="switchLanguageBtn"
-          @click="switchLanguage"
-        >
-          <span :aria-label="t('switchLanguageAlt')">{{ locale }}</span>
-        </button>
-      </transition>
+      <template v-for="btn in controlButtons" :key="btn.key">
+        <transition name="fade-control">
+          <button
+            v-if="btn.show"
+            :title="btn.title"
+            :class="['relative flex h-9 w-9 items-center justify-center rounded-full border-none shadow-lg backdrop-blur-sm transition focus:outline-none sm:h-10 sm:w-10', 'active' in btn && btn.active ? 'bg-primary text-white' : 'bg-white/20 text-white hover:bg-white/30']"
+            @click="btn.action"
+          >
+            <component :is="btn.icon" v-if="btn.icon" class="h-4 w-4 fill-current sm:h-5 sm:w-5" />
+            <span v-if="btn.text" class="text-xs font-medium uppercase sm:text-sm">{{ btn.text }}</span>
+            <span v-if="btn.badge && btn.badge > 0" class="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-danger px-1 text-[10px] font-bold text-white">{{ btn.badge }}</span>
+          </button>
+        </transition>
+      </template>
 
       <transition name="fade-control">
         <router-link
           v-if="controlsActive"
           to="/"
           :title="t('party.hangUpTitle')"
-          class="control control--hang-up"
+          class="flex h-9 w-9 items-center justify-center rounded-full bg-danger text-white shadow-lg transition hover:bg-red-600 focus:outline-none sm:h-10 sm:w-10"
         >
-          <PhoneIcon :alt="t('party.hangUpAlt')" :aria-label="t('party.hangUpAlt')" />
+          <PhoneIcon class="h-4 w-4 rotate-[225deg] fill-current sm:h-5 sm:w-5" />
         </router-link>
       </transition>
     </nav>
 
     <div
-      :class="{
-        'stage': true,
-        'stage--landscape': stageMode === 'landscape',
-        'stage--portrait': stageMode === 'portrait',
-      }"
+      :class="'flex flex-1 items-center justify-center overflow-hidden bg-black'"
       ref="stageEl"
     >
       <transition-group name="fade-control" tag="ul"
-        :class="{
-          'spotlight': true,
-          'spotlight--empty': stagePeers.length === 0,
-          'spotlight--one': stagePeers.length === 1,
-          'spotlight--two': stagePeers.length === 2,
-          'spotlight--three': stagePeers.length === 3,
-          'spotlight--four': stagePeers.length === 4,
-          'spotlight--five': stagePeers.length === 5,
-          'spotlight--six': stagePeers.length === 6,
-        }"
+        :class="spotlightClasses"
       >
         <PeerTile v-for="peer in stagePeers"
           :key="peer.id"
           type="stage"
+          :class="stageTileClasses"
           :partyMode="partyMode"
           :stageMode="stageMode"
           :peer="peer"
@@ -123,8 +59,10 @@
     </div>
 
     <transition name="fade-control" @after-leave="onResize">
-      <div class="lobby" v-if="lobbyPeers.length > 0">
-        <transition-group name="fade-control" tag="ul" class="couch">
+      <div v-if="lobbyPeers.length > 0" :class="['shrink-0 overflow-hidden bg-neutral-900', partyMode === 'landscape' ? 'h-full' : 'h-24 w-full md:h-28 lg:h-32']">
+        <transition-group name="fade-control" tag="ul"
+          :class="['flex h-full w-full', partyMode === 'portrait' ? 'flex-row overflow-x-auto' : 'flex-col overflow-y-auto']"
+        >
           <PeerTile v-for="peer in lobbyPeers"
             :key="peer.id"
             type="lobby"
@@ -134,38 +72,54 @@
             :colorIndex="getColorIndex(peer)"
             @togglePeer="togglePeer(peer)"
             @open-info-screen="(page) => emit('open-info-screen', page)"
+            :class="partyMode === 'landscape' ? 'h-full w-40 md:w-52 lg:w-60 xl:w-72' : 'h-full w-48 shrink-0'"
           />
         </transition-group>
       </div>
     </transition>
   </main>
+
+  <ChatPanel
+    :messages="chatMessages ?? []"
+    :localPeerId="localPeer.id"
+    :open="chatOpen"
+    @close="chatOpen = false"
+    @send="(text) => emit('send-chat', text)"
+  />
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount, markRaw } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useShare, useClipboard } from '@vueuse/core'
 import type { Peer, LocalPeer } from '@palava/client'
 import PeerTile from '@/components/PeerTile.vue'
+import ChatPanel from '@/components/ChatPanel.vue'
 import config from '@/config'
-import PalavaIcon from '@/assets/icons/palava.svg?component'
 import InfoIcon from '@/assets/icons/info-with-circle.svg?component'
 import LinkIcon from '@/assets/icons/link.svg?component'
 import VideoCameraIcon from '@/assets/icons/video-camera.svg?component'
 import VideoCameraOffIcon from '@/assets/icons/video-camera-off.svg?component'
 import MicIcon from '@/assets/icons/mic.svg?component'
 import MicOffIcon from '@/assets/icons/mic-off.svg?component'
+import TvIcon from '@/assets/icons/tv.svg?component'
+import ChatIcon from '@/assets/icons/chat.svg?component'
 import PhoneIcon from '@/assets/icons/phone.svg?component'
 
 const props = defineProps<{
   peers: Peer[]
   localPeer: LocalPeer
+  chatMessages?: Array<{ senderId: string, text: string, timestamp: number }>
 }>()
 
 const emit = defineEmits<{
   'open-info-screen': [page: string]
+  'send-chat': [text: string]
 }>()
 
 const { t, locale } = useI18n()
+const { share, isSupported: shareSupported } = useShare()
+const { copy, isSupported: clipboardSupported } = useClipboard()
 
 const partyMode = ref<'landscape' | 'portrait'>('landscape')
 const stageMode = ref<'landscape' | 'portrait'>('landscape')
@@ -174,20 +128,112 @@ const peerColors = ref<(string | null)[]>(Array(config.peerColors.length - 1).fi
 const controlsActive = ref(true)
 const cameraOff = ref(false)
 const microphoneMuted = ref(false)
+const joinedWithVideo = ref(props.localPeer.hasVideo())
+const joinedWithAudio = ref(props.localPeer.hasAudio())
+const screenSharing = ref(false)
+const canScreenShare = ref(!!navigator.mediaDevices?.getDisplayMedia)
+const chatOpen = ref(false)
+const unreadCount = ref(0)
 
 const logoBtn = ref<HTMLButtonElement>()
-const copyLinkBtn = ref<HTMLButtonElement>()
-const switchLanguageBtn = ref<HTMLButtonElement>()
 const stageEl = ref<HTMLDivElement>()
+
+const canShare = computed(() => shareSupported.value || clipboardSupported.value)
+
+const peerCount = computed(() => Math.min(stagePeers.value.length, 6))
+
+const spotlightClasses = computed(() => {
+  const n = peerCount.value
+  const landscape = stageMode.value === 'landscape'
+
+  // Base: always full size, hidden overflow
+  const base = 'h-full w-full overflow-hidden'
+
+  if (n <= 1) {
+    // empty or one: center the single tile
+    return landscape
+      ? `${base} text-center`
+      : `${base} flex flex-col justify-center`
+  }
+  if (n === 2) {
+    return landscape
+      ? `${base} flex items-center`
+      : `${base} text-center`
+  }
+  if (n <= 4) {
+    return `${base} grid grid-cols-2 grid-rows-2`
+  }
+  // 5-6
+  return landscape
+    ? `${base} grid grid-cols-3 grid-rows-2`
+    : `${base} grid grid-cols-2 grid-rows-3`
+})
+
+const stageTileClasses = computed(() => {
+  const n = peerCount.value
+  const landscape = stageMode.value === 'landscape'
+
+  if (n <= 1) {
+    return landscape
+      ? 'h-full max-w-full'
+      : 'w-full max-h-full'
+  }
+  if (n === 2) {
+    return landscape
+      ? 'w-1/2'
+      : 'h-1/2'
+  }
+  // 3-6: grid cells, fill completely
+  return 'h-full w-full'
+})
+
+const controlButtons = computed(() => [
+  {
+    key: 'info', show: controlsActive.value,
+    title: t('party.infoTitle'),
+    icon: markRaw(InfoIcon), action: () => emit('open-info-screen', 'about'),
+  },
+  {
+    key: 'copy', show: controlsActive.value && canShare.value,
+    title: t('party.copyLinkTitle'),
+    icon: markRaw(LinkIcon), action: copyShareLink,
+  },
+  {
+    key: 'camera', show: controlsActive.value && joinedWithVideo.value,
+    title: cameraOff.value ? t('party.turnOnCameraTitle') : t('party.turnOffCameraTitle'),
+    icon: markRaw(cameraOff.value ? VideoCameraOffIcon : VideoCameraIcon),
+    action: toggleCamera, active: !cameraOff.value,
+  },
+  {
+    key: 'mic', show: controlsActive.value && joinedWithAudio.value,
+    title: microphoneMuted.value ? t('party.unmuteMicrophoneTitle') : t('party.muteMicrophoneTitle'),
+    icon: markRaw(microphoneMuted.value ? MicOffIcon : MicIcon),
+    action: toggleMicrophone, active: !microphoneMuted.value,
+  },
+  {
+    key: 'screen', show: controlsActive.value && canScreenShare.value,
+    title: t('party.screenShareTitle'),
+    icon: markRaw(TvIcon), action: toggleScreenShare,
+    active: screenSharing.value,
+  },
+  {
+    key: 'chat', show: controlsActive.value,
+    title: t('party.chatTitle'),
+    icon: markRaw(ChatIcon), action: toggleChat,
+    badge: unreadCount.value,
+  },
+  {
+    key: 'lang', show: controlsActive.value,
+    title: t('switchLanguageTitle'),
+    text: locale.value, action: switchLanguage,
+  },
+])
 
 const stagePeers = computed(() =>
   props.peers.filter((peer) => !peersInLobby.value.includes(peer.id)),
 )
 const lobbyPeers = computed(() =>
   props.peers.filter((peer) => peersInLobby.value.includes(peer.id)),
-)
-const canShare = computed(() =>
-  !!(navigator.share || navigator.clipboard?.writeText),
 )
 
 function togglePeer(peer: Peer) {
@@ -237,32 +283,21 @@ function assignColorIndexes(introducedPeers: Peer[], removedPeers: Peer[] = []) 
   })
 }
 
-function autoAdjustPeers(peers: Peer[]) {
-  const remotePeers = peers.filter((peer) => !peer.isLocal())
-  if (remotePeers.length === 1) {
-    sendPeerToLobby(props.localPeer)
-    sendPeerToStage(remotePeers[0]!)
-  }
-}
-
-function toggleControls() {
-  controlsActive.value = !controlsActive.value
-  logoBtn.value?.blur()
+function autoAdjustPeers(_peers: Peer[]) {
+  // Keep all peers on stage — lobby is opt-in via toggle
 }
 
 function copyShareLink() {
   const url = window.location.href
-  if (navigator.share) {
-    navigator.share({ url })
+  if (shareSupported.value) {
+    share({ url })
   } else {
-    navigator.clipboard.writeText(url)
+    copy(url).catch((e) => console.warn('clipboard copy failed:', e))
   }
-  copyLinkBtn.value?.blur()
 }
 
 function switchLanguage() {
   locale.value = locale.value === 'de' ? 'en' : 'de'
-  switchLanguageBtn.value?.blur()
 }
 
 function toggleMicrophone() {
@@ -283,23 +318,78 @@ function toggleCamera() {
   }
 }
 
+async function toggleScreenShare() {
+  if (screenSharing.value) {
+    stopScreenShare()
+    return
+  }
+
+  try {
+    const stream = await navigator.mediaDevices.getDisplayMedia({
+      video: { cursor: 'always' } as MediaTrackConstraints,
+      audio: false,
+    })
+
+    const screenTrack = stream.getVideoTracks()[0]
+    if (!screenTrack) return
+
+    const localStream = props.localPeer.getStream()
+    if (localStream) {
+      for (const track of localStream.getVideoTracks()) {
+        track.stop()
+        localStream.removeTrack(track)
+        props.localPeer.emit('video_removed', track, localStream)
+      }
+      localStream.addTrack(screenTrack)
+      props.localPeer.emit('video_added', screenTrack, localStream)
+    }
+
+    screenSharing.value = true
+    cameraOff.value = false
+
+    screenTrack.onended = () => {
+      stopScreenShare()
+    }
+  } catch (e) {
+    if ((e as DOMException).name !== 'NotAllowedError') {
+      console.error('screen share failed:', e)
+    }
+  }
+}
+
+function stopScreenShare() {
+  if (!screenSharing.value) return
+  screenSharing.value = false
+
+  const localStream = props.localPeer.getStream()
+  if (localStream) {
+    for (const track of localStream.getVideoTracks()) {
+      track.stop()
+      localStream.removeTrack(track)
+      props.localPeer.emit('video_removed', track, localStream)
+    }
+  }
+
+  props.localPeer.requestVideo(config.gumVideoConstraints).catch(() => {
+    cameraOff.value = true
+  })
+}
+
+function toggleChat() {
+  chatOpen.value = !chatOpen.value
+  if (chatOpen.value) {
+    unreadCount.value = 0
+  }
+}
+
 function onResize() {
-  const partyWidth = window.innerWidth
-  const partyHeight = window.innerHeight
+  const pw = window.innerWidth
+  const ph = window.innerHeight
   const sw = stageEl.value?.clientWidth ?? 0
   const sh = stageEl.value?.clientHeight ?? 0
 
-  if (partyMode.value === 'landscape' && partyWidth < partyHeight) {
-    partyMode.value = 'portrait'
-  } else if (partyMode.value === 'portrait' && partyWidth >= partyHeight) {
-    partyMode.value = 'landscape'
-  }
-
-  if (stageMode.value === 'landscape' && sw < sh) {
-    stageMode.value = 'portrait'
-  } else if (stageMode.value === 'portrait' && sw >= sh) {
-    stageMode.value = 'landscape'
-  }
+  partyMode.value = pw < ph ? 'portrait' : 'landscape'
+  stageMode.value = sw < sh ? 'portrait' : 'landscape'
 }
 
 onMounted(() => {
@@ -313,6 +403,12 @@ onBeforeUnmount(() => {
   window.removeEventListener('resize', onResize)
 })
 
+watch(() => props.chatMessages?.length, (newLen, oldLen) => {
+  if (!chatOpen.value && newLen && oldLen && newLen > oldLen) {
+    unreadCount.value += newLen - oldLen
+  }
+})
+
 watch(() => props.peers, (newPeers, oldPeers) => {
   const introduced = newPeers.filter((np) => !oldPeers.includes(np))
   const removed = oldPeers.filter((op) => !newPeers.includes(op))
@@ -321,129 +417,3 @@ watch(() => props.peers, (newPeers, oldPeers) => {
   autoAdjustPeers(newPeers)
 })
 </script>
-
-<style lang="scss">
-.top-control {
-  position: absolute;
-  z-index: 1000;
-  top: calc($small-control-size / 3);
-  @media (min-width: $mobile) { top: calc($large-control-size / 3); }
-  display: flex;
-  align-items: center;
-
-  .logo-control, .control {
-    margin-left: calc($small-control-size / 3);
-    @media (min-width: $mobile) { margin-left: calc($large-control-size / 3); }
-  }
-
-  .logo-control {
-    height: $large-control-size;
-    width: $large-control-size;
-    @media (min-width: $mobile) {
-      height: $logo-control-size;
-      width: $logo-control-size;
-    }
-    opacity: 0.7;
-    filter: grayscale(1);
-    @include knobLike();
-    @include focusTitle();
-    &:focus, &:hover {
-      outline: none;
-      filter: none;
-      opacity: 1;
-      &::after { top: 120%; left: 0; }
-    }
-    svg { height: 100%; width: 100%; }
-  }
-
-  .control {
-    height: $small-control-size;
-    width: $small-control-size;
-    @media (min-width: $mobile) {
-      height: $large-control-size;
-      width: $large-control-size;
-    }
-    @include knob();
-    &:focus, &:hover {
-      &::after { top: 120%; left: 0; }
-    }
-
-    &--switch-language > * {
-      font-size: calc($small-control-size / 2.2);
-      @media (min-width: $mobile) { font-size: calc($large-control-size / 2.2); }
-      transform: translate(-1px, 0px);
-      text-transform: uppercase;
-    }
-
-    &--hang-up > * {
-      filter: grayscale(0);
-      transform: rotate(225deg);
-      fill: red;
-    }
-  }
-
-  @include fadeControl();
-}
-
-.party {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 100%;
-  overflow: auto;
-  background: black;
-  display: flex;
-  @include fadeControl();
-
-  &--landscape {
-    flex-direction: row;
-    .lobby { height: 100%; }
-    .lobby .peer {
-      width: $lobby-width-mobile;
-      @media (min-width: $mobile-plus)  { width: $lobby-width-mobile-plus; }
-      @media (min-width: $desktop)      { width: $lobby-width-desktop; }
-      @media (min-width: $desktop-plus) { width: $lobby-width-desktop-plus; }
-      @media (min-width: $desktop-large){ width: $lobby-width-desktop-large; }
-      @media (min-width: $desktop-huge) { width: $lobby-width-desktop-huge; }
-    }
-  }
-  &--portrait {
-    flex-direction: column;
-    .lobby { width: 100%; }
-    .lobby .peer {
-      height: $lobby-height-mobile;
-      @media (min-height: $mobile-plus-height)   { height: $lobby-height-mobile-plus; }
-      @media (min-height: $desktop-height)       { height: $lobby-height-desktop; }
-      @media (min-height: $desktop-plus-height)  { height: $lobby-height-desktop-plus; }
-      @media (min-height: $desktop-large-height) { height: $lobby-height-desktop-large; }
-      @media (min-height: $desktop-huge-height)  { height: $lobby-height-desktop-huge; }
-    }
-  }
-}
-
-.stage {
-  flex: 1;
-  overflow: hidden;
-  background: black;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.lobby {
-  overflow: hidden;
-  background: #222;
-  opacity: 1;
-}
-
-.couch {
-  height: 100%;
-  width: 100%;
-  display: flex;
-
-  .party--portrait & { flex-direction: row; overflow-x: auto; }
-  .party--landscape & { flex-direction: column; overflow-y: auto; }
-  @include fadeControl();
-}
-</style>

@@ -22,7 +22,7 @@
     "dev": "tsc --watch"
   },
   "dependencies": {
-    "webrtc-adapter": "^9.0.1"
+    "webrtc-adapter": "^9.0.4"
   },
   "devDependencies": {
     "typescript": "^5.9.3"

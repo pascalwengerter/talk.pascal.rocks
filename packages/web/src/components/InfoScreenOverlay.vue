@@ -1,16 +1,26 @@
 <template>
-  <aside class="info-screen" tabindex="0" @keydown.esc="emit('close')">
-    <button class="close" @click="emit('close')">
-      <CrossIcon :aria-label="t('closeAlt')" />
+  <aside
+    ref="el"
+    class="fixed inset-0 z-50 flex flex-col overflow-auto bg-surface p-6 text-sm text-text-secondary outline-none md:inset-4 md:top-16 md:rounded-2xl md:bg-surface-light md:shadow-2xl"
+    tabindex="0"
+    @keydown.esc="emit('close')"
+  >
+    <button
+      class="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-text transition hover:bg-white/20 focus:outline-none"
+      @click="emit('close')"
+    >
+      <CrossIcon class="h-4 w-4 fill-current" />
     </button>
 
     <NavigationBar
       type="screen"
+      class="pr-10"
       @open-info-screen="(page) => emit('open-info-screen', page)"
     />
 
+    <h1 class="my-4 text-2xl font-bold text-text">{{ infoPage.title }}</h1>
     <!-- eslint-disable-next-line vue/no-v-html -->
-    <div class="info-content" v-html="infoPage.content" />
+    <div class="prose prose-invert max-w-none [&_a]:text-primary [&_h2]:mt-6 [&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-text [&_li]:ml-4 [&_li]:list-disc [&_ul]:mt-2" v-html="infoPage.content" />
   </aside>
 </template>
 
@@ -28,7 +38,7 @@ const emit = defineEmits<{
   'open-info-screen': [page: string]
 }>()
 
-const { t, locale } = useI18n()
+const { locale } = useI18n()
 const messages: Record<string, typeof en> = { en, de }
 
 const el = ref<HTMLElement>()
@@ -46,48 +56,3 @@ watch(() => props.page, (newPage) => {
   if (newPage) el.value?.focus()
 })
 </script>
-
-<style lang="scss">
-/* See InfoPageView.vue for main styling */
-.info-screen {
-  position: fixed;
-  z-index: 700;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  opacity: 1;
-  @media (min-width: $mobile-plus) {
-    & {
-      left: $medium-spacing;
-      top: $large-control-size * 2;
-      max-width: calc(100% - #{$medium-spacing * 2});
-      bottom: $medium-spacing;
-      opacity: 0.92;
-    }
-  }
-
-  @media (min-width: $desktop) { width: $desktop; }
-  @media (min-width: $desktop-large) { width: $desktop-plus; }
-
-  @include defaultShadow();
-  outline: none;
-  overflow: auto;
-
-  .close {
-    @include inlineButton();
-    @include closeButton(36px);
-  }
-
-  .navigation {
-    padding-top: 0;
-    border-top: none;
-    padding-right: 36px;
-    width: 100%;
-  }
-
-  .info-content {
-    padding-bottom: $medium-plus-spacing;
-  }
-}
-</style>

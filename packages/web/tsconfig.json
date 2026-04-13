@@ -1,11 +1,6 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "@total-typescript/tsconfig/bundler/dom",
   "compilerOptions": {
-    "composite": true,
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "jsx": "preserve",
-    "jsxImportSource": "vue",
-    "noEmit": true,
     "paths": {
       "@/*": ["./src/*"],
       "@palava/client": ["../client/src/index.ts"]
@@ -15,8 +10,5 @@
     "src/**/*.ts",
     "src/**/*.vue",
     "env.d.ts"
-  ],
-  "references": [
-    { "path": "../client" }
   ]
 }

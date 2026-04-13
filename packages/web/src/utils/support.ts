@@ -1,6 +1,6 @@
-/** Returns a repeated parrot emoji for a given count */
+/** Returns a repeated can emoji for a given count */
 export function fancyNumber(n: number): string {
-  return '\u{1F99C}'.repeat(n)
+  return '\u{1F96B}'.repeat(n)
 }
 
 /** Detect user's browser language */
