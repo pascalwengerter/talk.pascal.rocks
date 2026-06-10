@@ -41,10 +41,6 @@ export class RemotePeer extends Peer<RemotePeerEvents> {
     this.setupRoom()
     this.setupPeerConnection()
     this.setupDistributor()
-
-    if (this.hasOfferPriority) {
-      this.queueNegotiation(() => this.createAndSendOffer())
-    }
   }
 
   /** Get the stream */
@@ -226,10 +222,13 @@ export class RemotePeer extends Peer<RemotePeerEvents> {
       return Promise.resolve()
     }
 
-    // If we're polite and have a pending local offer, implicit rollback will happen
-    // when we call setRemoteDescription with the incoming offer
-    return this.peerConnection
-      .setRemoteDescription(sdp)
+    // Explicitly roll back our pending offer before accepting the incoming one
+    const rollback = this.peerConnection.signalingState === 'have-local-offer'
+      ? this.peerConnection.setLocalDescription({ type: 'rollback' })
+      : Promise.resolve()
+
+    return rollback
+      .then(() => this.peerConnection!.setRemoteDescription(sdp))
       .then(() => this.peerConnection!.createAnswer())
       .then((answer) => this.peerConnection!.setLocalDescription(answer))
       .then(() => {
