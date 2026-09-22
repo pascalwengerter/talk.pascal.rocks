@@ -10,12 +10,6 @@
   "engines": {
     "node": ">=20"
   },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild",
-      "@parcel/watcher"
-    ]
-  },
   "devDependencies": {
     "@total-typescript/tsconfig": "^1.0.4"
   }
